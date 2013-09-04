@@ -2,18 +2,26 @@
 
 _tmux()
 {
-
-  local subcommands="attach new-session list-sessions"
+  local subcommands="list-sessions attach new-session"
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
 
   case $prev in 
     -t)
-      COMPREPLY=( $(compgen -W "$(tmux list-sessions | awk -F ':' '{print $1}')" -- $cur) )
-      return 0
+      local sessions=$(tmux list-sessions 2>&1)
+      if [[ $? == 0 ]]; then
+        COMPREPLY=( $(compgen -W "$(echo $sessions | awk -F ':' '{print $1}')" -- $cur) )
+        return 0
+      fi
+      ;;
   esac
 
-  COMPREPLY=( $(compgen -W "$(tmux list-commands | awk '{print $1'})" -- $cur))
+  local commands=$(tmux list-commands 2>/dev/null | awk '{printf("%s ",$1)}')
+  if [[ -z $commands ]]; then
+    COMPREPLY=( $(compgen -W "$subcommands" -- $cur))
+  else
+    COMPREPLY=( $(compgen -W "$commands" -- $cur))
+  fi
   return 0
 }
 
