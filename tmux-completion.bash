@@ -6,13 +6,15 @@ _tmux()
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-  case $prev in 
+  case $prev in
     -t)
-      local sessions=$(tmux list-sessions 2>&1)
-      if [[ $? == 0 ]]; then
+      local sessions=$(tmux list-sessions 2>/dev/null | awk '{printf("%s ", $1)}')
+      if [[ -z $sessions ]]; then
+        COMPREPLY=()
+      else
         COMPREPLY=( $(compgen -W "$(echo $sessions | awk -F ':' '{print $1}')" -- $cur) )
-        return 0
       fi
+      return 0
       ;;
   esac
 
