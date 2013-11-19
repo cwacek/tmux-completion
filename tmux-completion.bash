@@ -8,7 +8,7 @@ _tmux()
 
   case $prev in
     -t)
-      local sessions=$(tmux list-sessions 2>/dev/null | awk '{printf("%s ", $1)}')
+      local sessions=$(tmux list-sessions 2>/dev/null | awk -F ':' '{printf("%s ", $1)}')
       if [[ -z $sessions ]]; then
         COMPREPLY=()
       else
